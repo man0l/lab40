@@ -26,7 +26,7 @@
                 <div class="grid gap-2">
                     <div class="flex">
                         <span class="font-semibold text-gray-700 dark:text-gray-300 w-40">Name:</span>
-                        <span class="text-gray-900 dark:text-white">{{ $booking->customer->first_name }} {{ $booking->customer->last_name }}</span>
+                        <span class="text-gray-900 dark:text-white">{{ $booking->customer->firstname }} {{ $booking->customer->lastname }}</span>
                     </div>
                     <div class="flex">
                         <span class="font-semibold text-gray-700 dark:text-gray-300 w-40">PIN:</span>
