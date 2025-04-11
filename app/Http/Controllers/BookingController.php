@@ -49,7 +49,11 @@ class BookingController extends Controller
             $customer = Customer::create($validated['customer']);
         }
 
-        $booking = new Booking($validated);
+        $booking = new Booking([
+            'appointment_time' => $validated['appointment_time'],
+            'notification_channel_id' => $validated['notification_channel_id'],
+            'description' => $validated['description'] ?? null,
+        ]);
         $booking->customer_id = $customer->id;
         $booking->save();
 
@@ -108,6 +112,7 @@ class BookingController extends Controller
         
         $booking->appointment_time = $validated['appointment_time'];
         $booking->notification_channel_id = $validated['notification_channel_id'];
+        $booking->description = $validated['description'] ?? null;
         $booking->save();
 
         $notificationChannel = NotificationChannel::find($booking->notification_channel_id);

@@ -40,6 +40,7 @@ class UpdateBookingRequest extends FormRequest
                     }
                 },
             ],
+            'description' => 'nullable|string|max:500',
             'notification_channel_id' => 'required|exists:notification_channels,id',
             'customer_option' => 'required|in:existing,new',
         ];
@@ -68,7 +69,8 @@ class UpdateBookingRequest extends FormRequest
             'customer_id' => 'customer',
             'customer.firstname' => 'first name',
             'customer.lastname' => 'last name',
-            'customer.pin' => 'personal identification number'
+            'customer.pin' => 'personal identification number',
+            'description' => 'booking description'
         ];
     }
 }

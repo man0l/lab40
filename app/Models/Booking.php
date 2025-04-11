@@ -15,6 +15,7 @@ class Booking extends Model
     protected $fillable = [
         'appointment_time',
         'notification_channel_id',
+        'description',
     ];
 
     /**

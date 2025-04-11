@@ -21,6 +21,15 @@
                 </div>
             </div>
             
+            @if($booking->description)
+            <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Description</h3>
+                <div class="text-gray-900 dark:text-white">
+                    {{ $booking->description }}
+                </div>
+            </div>
+            @endif
+            
             <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Customer Information</h3>
             <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                 <div class="grid gap-2">

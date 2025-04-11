@@ -34,6 +34,7 @@ class StoreBookingRequest extends FormRequest
                     }
                 },
             ],
+            'description' => 'nullable|string|max:500',
             'customer.firstname' => 'required|string|max:255',
             'customer.lastname' => 'required|string|max:255',
             'customer.pin' => 'required|numeric|digits_between:9,10',
@@ -52,7 +53,8 @@ class StoreBookingRequest extends FormRequest
             'customer.firstname' => 'first name',
             'customer.lastname' => 'last name',
             'customer.pin' => 'personal identification number',
-            'notification_channel_id' => 'notification method'
+            'notification_channel_id' => 'notification method',
+            'description' => 'booking description'
         ];
     }
 }
