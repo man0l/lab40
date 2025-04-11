@@ -38,6 +38,7 @@ services:
       - '5173:5173'
     volumes:
       - ./:/app
+    restart: unless-stopped
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
