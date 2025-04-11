@@ -72,10 +72,12 @@ class BookingController extends Controller
     public function edit(Booking $booking)
     {
         $notificationChannels = NotificationChannel::all();
+        $customers = Customer::all();
 
         return view('booking/edit', [
             'booking' => $booking,
-            'notificationChannels' => $notificationChannels
+            'notificationChannels' => $notificationChannels,
+            'customers' => $customers
         ]);
     }
 
@@ -85,7 +87,24 @@ class BookingController extends Controller
     public function update(UpdateBookingRequest $request, Booking $booking)
     {
         $validated = $request->validated();
-        $booking->update($validated);
+        
+        if ($request->input('customer_option') === 'existing') {
+            $booking->customer_id = $validated['customer_id'];
+        } else {
+            $customerData = $validated['customer'];        
+            
+            $customer = Customer::where('pin', $customerData['pin'])->first();
+            
+            if (!$customer) {
+                $customer = Customer::create($customerData);
+            }
+            
+            $booking->customer_id = $customer->id;
+        }
+        
+        $booking->appointment_time = $validated['appointment_time'];
+        $booking->notification_channel_id = $validated['notification_channel_id'];
+        $booking->save();
 
         return redirect()->route('booking.show', $booking);
     }

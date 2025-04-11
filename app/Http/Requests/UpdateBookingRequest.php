@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Booking;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateBookingRequest extends FormRequest
 {
@@ -21,10 +23,35 @@ class UpdateBookingRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'appointment_time' => 'required|date_format:Y-m-d\TH:i',
-            'notification_channel_id' => 'required|exists:notification_channels,id'
+        $rules = [
+            'appointment_time' => [
+                'required',
+                'date_format:Y-m-d\TH:i',
+                function ($attribute, $value, $fail) {
+                    $bookingId = $this->route('booking')->id;
+                    
+                    $exists = Booking::where('appointment_time', $value)
+                        ->where('id', '!=', $bookingId)
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('The selected appointment time is already booked. Please choose a different time.');
+                    }
+                },
+            ],
+            'notification_channel_id' => 'required|exists:notification_channels,id',
+            'customer_option' => 'required|in:existing,new',
         ];
+
+        if ($this->input('customer_option') === 'existing') {
+            $rules['customer_id'] = 'required|exists:customers,id';
+        } else {
+            $rules['customer.firstname'] = 'required|string|max:255';
+            $rules['customer.lastname'] = 'required|string|max:255';
+            $rules['customer.pin'] = 'required|string|size:10|unique:customers,pin';
+        }
+
+        return $rules;
     }
 
     /**
@@ -36,7 +63,11 @@ class UpdateBookingRequest extends FormRequest
     {
         return [
             'appointment_time' => 'appointment time',
-            'notification_channel_id' => 'notification method'
+            'notification_channel_id' => 'notification method',
+            'customer_id' => 'customer',
+            'customer.firstname' => 'first name',
+            'customer.lastname' => 'last name',
+            'customer.pin' => 'personal identification number'
         ];
     }
 }
