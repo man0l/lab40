@@ -17,6 +17,11 @@ docker compose up -d
 docker compose exec laravel php artisan migrate
 ```
 
+## Seeder
+
+```
+docker compose exec laravel php artisan db:seed
+```
 ## Navigate the app
 
 
