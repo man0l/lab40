@@ -27,6 +27,7 @@ class StoreBookingRequest extends FormRequest
             'appointment_time' => [
                 'required',
                 'date_format:Y-m-d\TH:i',
+                'after:now',
                 function ($attribute, $value, $fail) {
                     if (Booking::where('appointment_time', $value)->exists()) {
                         $fail('The selected appointment time is already booked. Please choose a different time.');

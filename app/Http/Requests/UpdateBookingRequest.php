@@ -27,6 +27,7 @@ class UpdateBookingRequest extends FormRequest
             'appointment_time' => [
                 'required',
                 'date_format:Y-m-d\TH:i',
+                'after:now',
                 function ($attribute, $value, $fail) {
                     $bookingId = $this->route('booking')->id;
                     
