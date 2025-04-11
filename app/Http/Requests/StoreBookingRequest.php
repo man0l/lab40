@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Booking;
 
 class StoreBookingRequest extends FormRequest
 {
@@ -22,7 +24,15 @@ class StoreBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'appointment_time' => 'required|date_format:Y-m-d\TH:i',
+            'appointment_time' => [
+                'required',
+                'date_format:Y-m-d\TH:i',
+                function ($attribute, $value, $fail) {
+                    if (Booking::where('appointment_time', $value)->exists()) {
+                        $fail('The selected appointment time is already booked. Please choose a different time.');
+                    }
+                },
+            ],
             'customer.firstname' => 'required|string|max:255',
             'customer.lastname' => 'required|string|max:255',
             'customer.pin' => 'required|numeric|digits_between:9,10',
