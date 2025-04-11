@@ -53,7 +53,11 @@ class BookingController extends Controller
         $booking->customer_id = $customer->id;
         $booking->save();
 
-        return redirect()->route('booking.show', $booking);
+        $notificationChannel = NotificationChannel::find($booking->notification_channel_id);
+        $channelName = $notificationChannel ? $notificationChannel->name : 'notification';
+
+        return redirect()->route('booking.show', $booking)
+            ->with('success', "You have successfully booked an appointment! The client will be notified via {$channelName}.");
     }
 
     /**
@@ -106,7 +110,11 @@ class BookingController extends Controller
         $booking->notification_channel_id = $validated['notification_channel_id'];
         $booking->save();
 
-        return redirect()->route('booking.show', $booking);
+        $notificationChannel = NotificationChannel::find($booking->notification_channel_id);
+        $channelName = $notificationChannel ? $notificationChannel->name : 'notification';
+
+        return redirect()->route('booking.show', $booking)
+            ->with('success', "You have successfully updated the appointment! The client will be notified via {$channelName}.");
     }
 
     /**
