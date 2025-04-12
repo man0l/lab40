@@ -14,10 +14,32 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $bookings = Booking::with(['customer', 'notificationChannel'])
-            ->latest()
-            ->paginate(10);
-            
+        $query = Booking::query();
+        
+        // Always eager load notification channel
+        $query->with('notificationChannel');
+        
+        // Filter by date range
+        if (request()->has('start_date') && request('start_date')) {
+            $query->whereDate('appointment_time', '>=', request('start_date'));
+        }
+        
+        if (request()->has('end_date') && request('end_date')) {
+            $query->whereDate('appointment_time', '<=', request('end_date'));
+        }
+        
+        // Filter by customer PIN
+        if (request()->has('pin') && request('pin')) {
+            $query->whereHas('customer', function($q) {
+                $q->where('pin', 'LIKE', '%' . request('pin') . '%');
+            });
+        }
+        
+        // Always eager load customer after the filters
+        $query->with('customer');
+        
+        $bookings = $query->latest()->paginate(10)->withQueryString();
+        
         return view('booking/index', [
             'bookings' => $bookings
         ]);
