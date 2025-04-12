@@ -52,6 +52,41 @@
                 </div>
             </div>
             
+            @if(count($upcomingAppointments) > 0)
+            <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Upcoming Appointments
+                </div>
+            </h3>
+            <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-900 dark:text-white">
+                        <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-4 py-2 rounded-l-lg">Date & Time</th>
+                                <th scope="col" class="px-4 py-2">Notification</th>
+                                <th scope="col" class="px-4 py-2 rounded-r-lg">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($upcomingAppointments as $appointment)
+                            <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <td class="px-4 py-3">{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('M j, Y, g:i a') }}</td>
+                                <td class="px-4 py-3">{{ $appointment->notificationChannel->name }}</td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('booking.show', $appointment) }}" class="text-blue-600 dark:text-blue-500 hover:underline">View</a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+            
             <div class="flex items-center justify-between mt-6">
                 <a href="{{ route('booking.index') }}" class="text-sm font-medium text-blue-600 dark:text-blue-500 hover:underline">
                     <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

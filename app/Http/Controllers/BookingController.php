@@ -69,8 +69,16 @@ class BookingController extends Controller
      */
     public function show(Booking $booking)
     {
+        $upcomingAppointments = Booking::where('customer_id', $booking->customer_id)
+            ->where('id', '!=', $booking->id)
+            ->where('appointment_time', '>', now())
+            ->orderBy('appointment_time', 'asc')
+            ->limit(5)
+            ->get();
+
         return view('booking/show', [
-            'booking' => $booking
+            'booking' => $booking,
+            'upcomingAppointments' => $upcomingAppointments
         ]);
     }
 
