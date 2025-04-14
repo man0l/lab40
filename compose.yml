@@ -15,11 +15,15 @@ services:
       timeout: 5s
       retries: 55
   laravel:
-    image: bitnami/laravel:latest
+    build:
+      context: ./
+      dockerfile: docker/laravel.Dockerfile
     ports:
       - '8000:8000'
     volumes:
-      - ./:/app
+      - ./:/var/www/html
+      - /var/www/html/vendor
+      - /var/www/html/storage/framework
     depends_on:
       db:
         condition: service_healthy
@@ -38,6 +42,7 @@ services:
       - '5173:5173'
     volumes:
       - ./:/app
+      - /app/node_modules
     restart: unless-stopped
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
