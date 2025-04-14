@@ -23,23 +23,14 @@ Build the docker containers
 docker compose build
 ```
 
-## Finding Your Laravel Container
-
-You can find your Laravel container name or ID using:
-```
-docker ps | grep laravel
-```
-
 ## Migrations
 
-Using standard Docker (works on Mac/Linux/Windows):
 ```
 docker exec $(docker ps -q --filter "name=laravel") php artisan migrate
 ```
 
 ## Seeder
 
-Using standard Docker (works on Mac/Linux/Windows):
 ```
 docker exec $(docker ps -q --filter "name=laravel") php artisan db:seed
 ```
