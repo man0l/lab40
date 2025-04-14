@@ -5,40 +5,29 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Models\Booking;
-use App\Models\NotificationChannel;
-use App\Models\Customer;
+use App\Services\BookingService;
+
 class BookingController extends Controller
 {
+    protected $bookingService;
+
+    public function __construct(BookingService $bookingService)
+    {
+        $this->bookingService = $bookingService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $query = Booking::query();
+        $filters = [
+            'start_date' => request('start_date'),
+            'end_date' => request('end_date'),
+            'pin' => request('pin'),
+        ];
         
-        // Always eager load notification channel
-        $query->with('notificationChannel');
-        
-        // Filter by date range
-        if (request()->has('start_date') && request('start_date')) {
-            $query->whereDate('appointment_time', '>=', request('start_date'));
-        }
-        
-        if (request()->has('end_date') && request('end_date')) {
-            $query->whereDate('appointment_time', '<=', request('end_date'));
-        }
-        
-        // Filter by customer PIN
-        if (request()->has('pin') && request('pin')) {
-            $query->whereHas('customer', function($q) {
-                $q->where('pin', 'LIKE', '%' . request('pin') . '%');
-            });
-        }
-        
-        // Always eager load customer after the filters
-        $query->with('customer');
-        
-        $bookings = $query->latest()->paginate(10)->withQueryString();
+        $bookings = $this->bookingService->getBookings($filters);
         
         return view('booking/index', [
             'bookings' => $bookings
@@ -50,7 +39,7 @@ class BookingController extends Controller
      */
     public function create()
     {
-        $notificationChannels = NotificationChannel::all();
+        $notificationChannels = $this->bookingService->getNotificationChannels();
 
         return view('booking/create', [
             'notificationChannels' => $notificationChannels
@@ -64,22 +53,15 @@ class BookingController extends Controller
     {
         $validated = $request->validated();
 
-        $pin = $request->input('customer.pin');
-        $customer = Customer::where('pin', $pin)->first();
-
-        if (!$customer) {
-            $customer = Customer::create($validated['customer']);
-        }
-
-        $booking = new Booking([
+        $bookingData = [
             'appointment_time' => $validated['appointment_time'],
             'notification_channel_id' => $validated['notification_channel_id'],
             'description' => $validated['description'] ?? null,
-        ]);
-        $booking->customer_id = $customer->id;
-        $booking->save();
+        ];
 
-        $notificationChannel = NotificationChannel::find($booking->notification_channel_id);
+        $booking = $this->bookingService->createBooking($bookingData, $validated['customer']);
+
+        $notificationChannel = $this->bookingService->getNotificationChannel($booking->notification_channel_id);
         $channelName = $notificationChannel ? $notificationChannel->name : 'notification';
 
         return redirect()->route('booking.show', $booking)
@@ -91,12 +73,10 @@ class BookingController extends Controller
      */
     public function show(Booking $booking)
     {
-        $upcomingAppointments = Booking::where('customer_id', $booking->customer_id)
-            ->where('id', '!=', $booking->id)
-            ->where('appointment_time', '>', now())
-            ->orderBy('appointment_time', 'asc')
-            ->limit(5)
-            ->get();
+        $upcomingAppointments = $this->bookingService->getUpcomingAppointments(
+            $booking->customer_id, 
+            $booking->id
+        );
 
         return view('booking/show', [
             'booking' => $booking,
@@ -109,8 +89,8 @@ class BookingController extends Controller
      */
     public function edit(Booking $booking)
     {
-        $notificationChannels = NotificationChannel::all();
-        $customers = Customer::all();
+        $notificationChannels = $this->bookingService->getNotificationChannels();
+        $customers = $this->bookingService->getCustomers();
 
         return view('booking/edit', [
             'booking' => $booking,
@@ -126,26 +106,28 @@ class BookingController extends Controller
     {
         $validated = $request->validated();
         
-        if ($request->input('customer_option') === 'existing') {
-            $booking->customer_id = $validated['customer_id'];
-        } else {
-            $customerData = $validated['customer'];        
-            
-            $customer = Customer::where('pin', $customerData['pin'])->first();
-            
-            if (!$customer) {
-                $customer = Customer::create($customerData);
-            }
-            
-            $booking->customer_id = $customer->id;
-        }
+        $bookingData = [
+            'appointment_time' => $validated['appointment_time'],
+            'notification_channel_id' => $validated['notification_channel_id'],
+            'description' => $validated['description'] ?? null,
+        ];
         
-        $booking->appointment_time = $validated['appointment_time'];
-        $booking->notification_channel_id = $validated['notification_channel_id'];
-        $booking->description = $validated['description'] ?? null;
-        $booking->save();
+        if ($request->input('customer_option') === 'existing') {
+            $booking = $this->bookingService->updateBooking(
+                $booking, 
+                $bookingData, 
+                null, 
+                $validated['customer_id']
+            );
+        } else {
+            $booking = $this->bookingService->updateBooking(
+                $booking, 
+                $bookingData, 
+                $validated['customer']
+            );
+        }
 
-        $notificationChannel = NotificationChannel::find($booking->notification_channel_id);
+        $notificationChannel = $this->bookingService->getNotificationChannel($booking->notification_channel_id);
         $channelName = $notificationChannel ? $notificationChannel->name : 'notification';
 
         return redirect()->route('booking.show', $booking)
@@ -157,7 +139,7 @@ class BookingController extends Controller
      */
     public function destroy(Booking $booking)
     {
-        $booking->delete();
+        $this->bookingService->deleteBooking($booking);
         
         return redirect()->route('booking.index')->with('success', 'Booking deleted successfully');
     }

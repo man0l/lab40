@@ -151,14 +151,9 @@
                     </table>
                 </div>
                 
-                <div class="mt-6 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-                    <div class="flex flex-col md:flex-row justify-between items-center">
-                        <div class="mb-4 md:mb-0 text-sm text-gray-600 dark:text-gray-400">
-                            Showing {{ $bookings->firstItem() }} to {{ $bookings->lastItem() }} of {{ $bookings->total() }} bookings
-                        </div>
-                        <div>
-                            {{ $bookings->links() }}
-                        </div>
+                <div class="mt-8 px-6 py-5 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-center">
+                        {{ $bookings->links() }}
                     </div>
                 </div>
             @else

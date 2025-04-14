@@ -37,7 +37,7 @@ class StoreBookingRequest extends FormRequest
             'description' => 'nullable|string|max:500',
             'customer.firstname' => 'required|string|max:255',
             'customer.lastname' => 'required|string|max:255',
-            'customer.pin' => 'required|numeric|digits_between:9,10',
+            'customer.pin' => 'required|string|size:10',
             'notification_channel_id' => 'required|exists:notification_channels,id'
         ];
     }
