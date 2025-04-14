@@ -9,7 +9,7 @@ git clone git@github.com:man0l/lab40.git
 
 The app is running in php 8.4
 
-## Preqreusites
+## Prerequisite
 
 Copy .env.example to .env
 
