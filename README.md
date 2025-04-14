@@ -21,6 +21,7 @@ cp .env.example .env
 Build the docker containers
 ```
 docker compose build
+docker compose up -d
 ```
 
 ## Migrations
